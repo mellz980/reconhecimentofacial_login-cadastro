@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Rosto - Portaria Digital</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navegação Superior -->
+    <header class="top-bar">
+        <a href="/login" class="brand">
+            <span class="brand-badge"></span>
+            <span>Portaria Digital</span>
+        </a>
+        <nav class="nav-menu">
+            <a href="/cadastro" class="nav-link active" aria-current="page">Cadastrar rosto</a>
+            <a href="/login" class="nav-link">Entrar</a>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="app-container">
+        <div class="grid-desk">
+            
+            <!-- Coluna Esquerda: Visor da Câmera -->
+            <section class="visor-container">
+                <div id="visor-wrapper" class="visor-wrapper">
+                    <div class="visor-frame">
+                        <video id="webcam" class="visor-video" autoplay playsinline muted></video>
+                        <canvas id="canvas" class="visor-canvas"></canvas>
+                        <div id="visor-snapshot" class="visor-snapshot"></div>
+                    </div>
+                    <!-- SVG Anel de Progresso ao Redor do Oval -->
+                    <svg class="visor-svg-ring" viewBox="0 0 300 380" aria-hidden="true">
+                        <path d="M 150 15 A 135 175 0 1 1 149.99 15 Z" class="ring-track" />
+                        <path d="M 150 15 A 135 175 0 1 1 149.99 15 Z" class="ring-fill" id="ring-fill" />
+                    </svg>
+                </div>
+                <div class="visor-status-box" aria-live="polite">
+                    <span id="visor-reason" class="visor-reason" style="display: none;"></span>
+                </div>
+            </section>
+
+            <!-- Coluna Direita: Painel de Ação -->
+            <section class="panel">
+                
+                <!-- Formulário de Entrada -->
+                <div id="panel-form-section" style="display: flex; flex-direction: column; gap: 24px;">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Cadastrar rosto</h1>
+                        <p class="panel-subtext">Cadastre as credenciais biométricas para liberar o acesso pela portaria.</p>
+                    </div>
+
+                    <form id="form-register" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="form-group">
+                            <label for="input-name" class="form-label">Seu nome</label>
+                            <input type="text" id="input-name" class="form-input" placeholder="Digite seu nome completo" required autocomplete="off">
+                        </div>
+
+                        <!-- Área de Instrução em Voz Ativa -->
+                        <div id="instruction-box" class="instruction-box">
+                            <span id="instruction-text" class="instruction-text">Posicione-se em frente à câmera.</span>
+                        </div>
+
+                        <button type="submit" id="btn-start-register" class="btn btn-primary">
+                            <span>Iniciar cadastro</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Crachá de Resultado (Revelado no Sucesso) -->
+                <div id="badge-card" class="badge-card">
+                    <div class="badge-header">
+                        <div class="badge-icon-status"></div>
+                        <h2 class="badge-status-title"></h2>
+                    </div>
+                    <div class="badge-user-name"></div>
+                    <div class="badge-meta"></div>
+                    <div class="badge-actions">
+                        <a href="/login" id="btn-badge-test" class="btn btn-primary">Testar login</a>
+                        <a href="/cadastro" id="btn-badge-new" class="btn btn-secondary">Cadastrar outra pessoa</a>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de Confirmação para Nome Duplicado (Foco Preso, Sem alert nativo) -->
+    <div id="modal-overwrite" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-box">
+            <h2 id="modal-title" class="modal-title">Confirmar cadastro</h2>
+            <p class="modal-text"></p>
+            <div class="modal-footer">
+                <button id="btn-cancel-overwrite" class="btn btn-secondary" type="button">Cancelar</button>
+                <button id="btn-confirm-overwrite" class="btn btn-danger" type="button">Sobrescrever</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

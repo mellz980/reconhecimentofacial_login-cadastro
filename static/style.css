@@ -1,0 +1,594 @@
+/* ==========================================================================
+   PORTARIA DIGITAL - SISTEMA VISUAL
+   Cores, Tipografia e Layout para credenciamento por reconhecimento facial
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=IBM+Plex+Sans:wght@400;500&display=swap');
+
+:root {
+  /* Cores do Sistema Visual */
+  --bg-papel: #E8ECEF;
+  --bg-superficie: #F8FAFB;
+  --tinta-principal: #17233B;
+  --tinta-suave: #5B6781;
+  --acesso-liberado: #17724A;
+  --acesso-negado: #B42318;
+  --atencao: #B7791F;
+  
+  --border-subtle: rgba(23, 35, 59, 0.12);
+  --border-focus: #17233B;
+  --ring-bg-color: #D0D7DE;
+
+  /* Tipografia */
+  --font-heading: 'Bricolage Grotesque', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+
+  /* Geometria por Função */
+  --radius-visor: 50%;
+  --radius-painel: 16px;
+  --radius-botao: 10px;
+
+  /* Transição */
+  --transition-normal: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-papel);
+  color: var(--tinta-principal);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Acessibilidade - Foco por Teclado */
+:focus-visible {
+  outline: 3px solid var(--tinta-principal);
+  outline-offset: 2px;
+}
+
+/* Navegação Superior */
+.top-bar {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--tinta-principal);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.brand-badge {
+  width: 12px;
+  height: 12px;
+  background-color: var(--tinta-principal);
+  border-radius: 50%;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tinta-suave);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-botao);
+  transition: var(--transition-normal);
+}
+
+.nav-link:hover {
+  color: var(--tinta-principal);
+  background-color: rgba(23, 35, 59, 0.05);
+}
+
+.nav-link.active {
+  color: var(--tinta-principal);
+  background-color: var(--bg-superficie);
+  border: 1px solid var(--border-subtle);
+  font-weight: 500;
+}
+
+/* Layout Principal */
+.app-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 32px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.grid-desk {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .grid-desk {
+    grid-template-columns: 55% 1fr;
+    gap: 48px;
+  }
+}
+
+/* Coluna Esquerda: Visor da Câmera (Elemento Memorável) */
+.visor-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.visor-wrapper {
+  position: relative;
+  width: 280px;
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+@media (min-width: 480px) {
+  .visor-wrapper {
+    width: 310px;
+    height: 390px;
+  }
+}
+
+/* Recorte Oval do Visor */
+.visor-frame {
+  position: relative;
+  width: 260px;
+  height: 330px;
+  border-radius: 50% / 42%;
+  overflow: hidden;
+  background-color: #DDE2E6;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 480px) {
+  .visor-frame {
+    width: 290px;
+    height: 370px;
+  }
+}
+
+/* Video com webcam espelhada */
+.visor-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+}
+
+.visor-canvas {
+  display: none;
+}
+
+/* Snapshot estático para o crachá congelado */
+.visor-snapshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  display: none;
+}
+
+/* SVG do Anel de Progresso ao Redor do Oval */
+.visor-svg-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--ring-bg-color);
+  stroke-width: 5;
+  transition: var(--transition-normal);
+}
+
+.ring-fill {
+  fill: none;
+  stroke: var(--tinta-principal);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
+}
+
+.ring-fill.success {
+  stroke: var(--acesso-liberado);
+}
+
+.ring-fill.danger {
+  stroke: var(--acesso-negado);
+}
+
+/* Animação de Giro do Anel durante Verificação */
+.ring-fill.spinning {
+  animation: spin-ring 1.4s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes spin-ring {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Tremor no Visor para Acesso Negado */
+.visor-wrapper.shake {
+  animation: shake-visor 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake-visor {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+/* Mensagens de Feedback sobre o Visor */
+.visor-status-box {
+  margin-top: 16px;
+  min-height: 28px;
+  text-align: center;
+}
+
+.visor-reason {
+  font-size: 14px;
+  color: var(--tinta-suave);
+  background-color: var(--bg-superficie);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  display: inline-block;
+  max-width: 320px;
+}
+
+.visor-reason.warning {
+  color: var(--atencao);
+  border-color: rgba(183, 121, 31, 0.3);
+}
+
+/* Coluna Direita: Painel de Ação */
+.panel {
+  background-color: var(--bg-superficie);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-painel);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 480px;
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--tinta-principal);
+}
+
+.panel-subtext {
+  font-size: 16px;
+  color: var(--tinta-suave);
+  max-width: 60ch;
+}
+
+/* Form de Cadastro */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tinta-principal);
+}
+
+.form-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-botao);
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--tinta-principal);
+  transition: var(--transition-normal);
+}
+
+.form-input:focus {
+  border-color: var(--border-focus);
+  outline: none;
+}
+
+/* Área de Instruções em Voz Ativa */
+.instruction-box {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.instruction-text {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--tinta-principal);
+}
+
+.instruction-text.active {
+  color: var(--atencao);
+}
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: var(--radius-botao);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition-normal);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--tinta-principal);
+  color: #FFFFFF;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #243456;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--tinta-principal);
+  border-color: var(--border-subtle);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: rgba(23, 35, 59, 0.05);
+}
+
+.btn-danger {
+  background-color: var(--acesso-negado);
+  color: #FFFFFF;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #931B12;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Crachá de Resultado (Revelado no Sucesso / Falha) */
+.badge-card {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: var(--radius-painel);
+  border: 1px solid var(--border-subtle);
+  background-color: #FFFFFF;
+}
+
+.badge-card.revealed {
+  display: flex;
+  animation: slide-up-badge 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slide-up-badge {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.badge-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge-icon-status {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badge-icon-status.success {
+  background-color: rgba(23, 114, 74, 0.12);
+  color: var(--acesso-liberado);
+}
+
+.badge-icon-status.danger {
+  background-color: rgba(180, 35, 24, 0.12);
+  color: var(--acesso-negado);
+}
+
+.badge-status-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-status-title.success {
+  color: var(--acesso-liberado);
+}
+
+.badge-status-title.danger {
+  color: var(--acesso-negado);
+}
+
+.badge-user-name {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--tinta-principal);
+}
+
+.badge-meta {
+  font-size: 14px;
+  color: var(--tinta-suave);
+}
+
+.badge-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Modal de Confirmação (Substitui o alert nativo) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(23, 35, 59, 0.4);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-box {
+  background-color: var(--bg-superficie);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-painel);
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 12px 32px rgba(23, 35, 59, 0.12);
+}
+
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--tinta-principal);
+}
+
+.modal-text {
+  font-size: 15px;
+  color: var(--tinta-suave);
+  line-height: 1.5;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Mobile Adjustments (< 960px) */
+@media (max-width: 959px) {
+  .app-container {
+    padding-bottom: 90px; /* Space for fixed bottom action button */
+  }
+
+  .panel {
+    max-width: 100%;
+  }
+
+  .mobile-fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-superficie);
+    border-top: 1px solid var(--border-subtle);
+    padding: 16px 24px;
+    z-index: 50;
+  }
+
+  .mobile-fixed-bottom .btn {
+    width: 100%;
+  }
+}
+
+/* Desativação de Animações se Solicitado pelo Usuário */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
