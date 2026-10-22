@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Rosto - Face Access</title>
+    <meta name="description" content="Cadastro biométrico com extração de pontos anatômicos estáveis e consolidação do template facial pela média de 5 capturas.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Barra Superior -->
+    <header class="top-header">
+        <a href="/" class="brand-area" id="brand-link">
+            <div class="brand-logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m0 6v4a2 2 0 0 0 2 2h4m6 0h4a2 2 0 0 0 2-2v-4m0-6V5a2 2 0 0 0-2-2h-4"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </div>
+            <span class="brand-name">Face Access</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/" class="nav-item" id="nav-acesso">Acesso</a>
+            <a href="/cadastro" class="nav-item active" id="nav-cadastro">Cadastrar Rosto</a>
+            <a href="/calibracao" class="nav-item" id="nav-calibracao">Calibração</a>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-wrapper">
+        <section class="page-title-section">
+            <div>
+                <h1 class="page-title">Cadastro Biométrico de Usuário</h1>
+                <p class="page-subtitle">Captura 5 amostras biométricas de alta fidelidade e consolida o template facial pela MÉDIA matemática.</p>
+            </div>
+        </section>
+
+        <div class="app-grid">
+            <!-- Coluna 1: Câmera -->
+            <section class="camera-card">
+                <div class="viewport-wrapper">
+                    <video id="webcam" autoplay playsinline muted></video>
+                    <canvas id="canvas-overlay"></canvas>
+                    <div id="oval-guide" class="oval-guide"></div>
+                </div>
+
+                <div class="camera-status-bar">
+                    <div id="pill-status" class="pill-status">
+                        <span class="pill-dot"></span>
+                        <span id="pill-text">Posicione o rosto</span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">5 amostras consolidadas por média</span>
+                </div>
+            </section>
+
+            <!-- Coluna 2: Formulário e Instruções -->
+            <section class="diagnostic-panel">
+                <div class="card">
+                    <div class="card-header-line">
+                        <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                            Dados do Usuário
+                        </h2>
+                    </div>
+
+                    <form id="form-register" style="display: flex; flex-direction: column; gap: 18px;">
+                        <div class="form-group">
+                            <label for="input-name" class="form-label">Nome Completo</label>
+                            <input type="text" id="input-name" class="form-input" placeholder="Ex: Lucas Gabriel Oliveira" required autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="select-modo" class="form-label">Modo de Extração</label>
+                            <select id="select-modo" class="form-input">
+                                <option value="landmarks">Landmarks Estáveis (90 pontos, 3D Procrustes)</option>
+                                <option value="modelo">MobileFaceNet ONNX (Vetor 512D)</option>
+                            </select>
+                        </div>
+
+                        <!-- Caixa de Instrução em Voz Ativa -->
+                        <div id="instruction-box" class="buffer-box" style="display: none; background: rgba(6, 182, 212, 0.08); border-color: rgba(6, 182, 212, 0.25);">
+                            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--cyan-400); font-weight: 700; letter-spacing: 0.05em;">Instrução de Captura</span>
+                            <div id="instruction-text" style="font-size: 1rem; font-weight: 600; color: #FFFFFF;">Posicione-se em frente à câmera...</div>
+                        </div>
+
+                        <button type="submit" id="btn-start-register" class="btn btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Iniciar Coleta (5 Capturas)</span>
+                        </button>
+                    </form>
+
+                    <!-- Crachá de Sucesso (Exibido após cadastro concluído) -->
+                    <div id="badge-success" class="access-result-banner granted" style="display: none; flex-direction: column; align-items: flex-start; gap: 14px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="result-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <div>
+                                <div class="result-title" style="color: var(--emerald-400);">CADASTRO CONCLUÍDO</div>
+                                <div class="result-desc">Credenciais biométricas de <strong id="registered-name"></strong> salvas em data/pessoas.json.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; width: 100%; margin-top: 6px;">
+                            <a href="/" class="btn btn-primary" style="flex: 1;">Testar no Terminal de Acesso</a>
+                            <a href="/cadastro" class="btn btn-secondary">Cadastrar Outro</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de Confirmação para Nome Duplicado -->
+    <div id="modal-overwrite" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px;">
+        <div class="card" style="max-width: 460px; width: 100%; gap: 16px;">
+            <h3 style="font-size: 1.2rem; font-weight: 700;">Usuário Já Cadastrado</h3>
+            <p id="modal-text" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;"></p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+                <button type="button" id="btn-cancel-overwrite" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="btn-confirm-overwrite" class="btn btn-primary" style="background: linear-gradient(135deg, var(--rose-500), #E11D48);">Sobrescrever</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts MediaPipe e ONNX Runtime Web -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+    <!-- Módulos da Aplicação -->
+    <script src="js/landmarks.js"></script>
+    <script src="js/onnx_engine.js"></script>
+    <script src="js/script_cadastro.js"></script>
+</body>
+</html>

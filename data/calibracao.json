@@ -1,0 +1,10 @@
+{
+  "limiar": 0.048,
+  "p95Genuino": 0.035,
+  "p5Impostor": 0.061,
+  "far": 0,
+  "frr": 0,
+  "amostrasGenuinas": 0,
+  "amostrasImpostoras": 0,
+  "atualizadoEm": "2026-10-22T19:11:21.673Z"
+}

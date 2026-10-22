@@ -1,0 +1,23 @@
+{
+  "name": "reconhecimentofacial_login-cadastro",
+  "version": "2.0.0",
+  "description": "Face Access - Sistema de Autenticação Facial com MediaPipe no Navegador, Calibração Automática de Limiar e Proteção contra Falso Aceite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/test_face_access.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "keywords": [
+    "face-access",
+    "biometrics",
+    "mediapipe",
+    "facemesh",
+    "onnxruntime-web",
+    "facial-recognition"
+  ],
+  "author": "Face Access Team",
+  "license": "MIT"
+}

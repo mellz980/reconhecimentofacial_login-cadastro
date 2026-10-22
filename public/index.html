@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Access - Portaria Digital com Reconhecimento Facial</title>
+    <meta name="description" content="Sistema de controle de acesso biométrico facial inteligente com MediaPipe FaceMesh no navegador, calibração automática de limiar e proteção contra falso aceite.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Barra Superior -->
+    <header class="top-header">
+        <a href="/" class="brand-area" id="brand-link">
+            <div class="brand-logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m0 6v4a2 2 0 0 0 2 2h4m6 0h4a2 2 0 0 0 2-2v-4m0-6V5a2 2 0 0 0-2-2h-4"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </div>
+            <span class="brand-name">Face Access</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/" class="nav-item active" id="nav-acesso">Acesso</a>
+            <a href="/cadastro" class="nav-item" id="nav-cadastro">Cadastrar Rosto</a>
+            <a href="/calibracao" class="nav-item" id="nav-calibracao">Calibração</a>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-wrapper">
+        <section class="page-title-section">
+            <div>
+                <h1 class="page-title">Terminal de Acesso Facial</h1>
+                <p class="page-subtitle">Verificação biométrica contínua por janela temporal com garantia de margem e imunidade a falso aceite.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="select-modo" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">MODO BIOMÉTRICO:</label>
+                <select id="select-modo" class="form-input" style="padding: 6px 12px; font-size: 0.85rem; width: auto;">
+                    <option value="landmarks">Landmarks Estáveis (90 pontos, 3D)</option>
+                    <option value="modelo">MobileFaceNet ONNX (512D)</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="app-grid">
+            <!-- Coluna 1: Câmera e Visor Oval -->
+            <section class="camera-card">
+                <div class="viewport-wrapper">
+                    <video id="webcam" autoplay playsinline muted></video>
+                    <canvas id="canvas-overlay"></canvas>
+                    <div id="oval-guide" class="oval-guide"></div>
+                </div>
+
+                <div class="camera-status-bar">
+                    <div id="pill-status" class="pill-status">
+                        <span class="pill-dot"></span>
+                        <span id="pill-text">Posicione o rosto</span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">90 pontos estáveis (exclui boca/sobrancelhas)</span>
+                </div>
+            </section>
+
+            <!-- Coluna 2: Painel de Diagnóstico em Tempo Real -->
+            <section class="diagnostic-panel">
+                <div class="card">
+                    <div class="card-header-line">
+                        <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            Diagnóstico Biométrico (/verificar)
+                        </h2>
+                        <span class="badge-mode" id="badge-version">v2.0 Rigorosa</span>
+                    </div>
+
+                    <!-- Indicador de Buffer de 10 Frames Consecutivos -->
+                    <div class="buffer-box">
+                        <div class="buffer-header">
+                            <span>Janela de Verificação (10 frames consecutivos)</span>
+                            <strong id="buffer-count" style="color: var(--cyan-400);">0/10</strong>
+                        </div>
+                        <div class="buffer-dots">
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                            <div class="buffer-dot"></div>
+                        </div>
+                    </div>
+
+                    <!-- Métricas do Último Julgamento -->
+                    <div class="metrics-grid">
+                        <div class="metric-card accent">
+                            <span class="metric-label">Melhor Candidato</span>
+                            <span id="val-melhor" class="metric-value">--</span>
+                            <span id="meta-melhor" class="metric-meta">Aguardando leitura…</span>
+                        </div>
+
+                        <div class="metric-card">
+                            <span class="metric-label">2º Melhor Candidato</span>
+                            <span id="val-segundo" class="metric-value">--</span>
+                            <span id="meta-segundo" class="metric-meta">Aguardando leitura…</span>
+                        </div>
+
+                        <div class="metric-card">
+                            <span class="metric-label">Razão de Margem</span>
+                            <span id="val-margem" class="metric-value">--</span>
+                            <span id="meta-margem" class="metric-meta">Exigido: ≥ 1.30x</span>
+                        </div>
+
+                        <div class="metric-card">
+                            <span class="metric-label">Limiar Vigente</span>
+                            <span id="val-limiar" class="metric-value">0.0500</span>
+                            <span id="meta-limiar" class="metric-meta">Escala de centésimos</span>
+                        </div>
+                    </div>
+
+                    <!-- Banner de Decisão Final -->
+                    <div id="banner-resultado" class="access-result-banner">
+                        <div class="result-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                        </div>
+                        <div>
+                            <div class="result-title">Aguardando verificação</div>
+                            <div class="result-desc">Mantenha seu rosto em frente à câmera para processar a janela de 10 quadros.</div>
+                        </div>
+                    </div>
+
+                    <!-- Terminal de Logs do Servidor em Tempo Real -->
+                    <div>
+                        <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;">
+                            Terminal de Eventos Biométricos
+                        </div>
+                        <div id="terminal-logs" class="terminal-box">
+                            <div class="log-entry info"><span class="time">[SISTEMA]</span> Terminal pronto. Aguardando detecção facial...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts MediaPipe e ONNX Runtime Web -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+    <!-- Módulos da Aplicação -->
+    <script src="js/landmarks.js"></script>
+    <script src="js/onnx_engine.js"></script>
+    <script src="js/script_acesso.js"></script>
+</body>
+</html>
