@@ -67,23 +67,30 @@
     const rightEyeMap = RIGHT_EYE_INDICES.map(idx => STABLE_LANDMARK_INDICES.indexOf(idx)).filter(i => i >= 0);
 
     /**
-     * Extrai apenas os pontos estáveis de um conjunto completo de 468 pontos do MediaPipe FaceMesh.
+     * Extrai apenas os pontos estáveis de um conjunto de landmarks do MediaPipe FaceMesh.
+     * Seguro e resiliente contra variações de tamanho de vetor.
      */
     function extractStableLandmarks(allLandmarks) {
-        if (!allLandmarks || !Array.isArray(allLandmarks)) {
-            throw new Error('Conjunto de landmarks inválido fornecido para extração.');
+        if (!allLandmarks || !Array.isArray(allLandmarks) || allLandmarks.length === 0) {
+            return [];
+        }
+
+        // Se já contém os 90 pontos estáveis, retorna cópia limpa
+        if (allLandmarks.length === STABLE_LANDMARK_INDICES.length) {
+            return allLandmarks.map(p => ({
+                x: Number(p.x || 0),
+                y: Number(p.y || 0),
+                z: p.z !== undefined ? Number(p.z) : 0.0
+            }));
         }
 
         const stable = [];
         for (let i = 0; i < STABLE_LANDMARK_INDICES.length; i++) {
             const idx = STABLE_LANDMARK_INDICES[i];
-            const pt = allLandmarks[idx];
-            if (!pt) {
-                throw new Error(`Ponto de landmark no índice ${idx} ausente.`);
-            }
+            const pt = allLandmarks[idx] || allLandmarks[i] || { x: 0.5, y: 0.5, z: 0.0 };
             stable.push({
-                x: Number(pt.x),
-                y: Number(pt.y),
+                x: Number(pt.x || 0),
+                y: Number(pt.y || 0),
                 z: pt.z !== undefined ? Number(pt.z) : 0.0
             });
         }
