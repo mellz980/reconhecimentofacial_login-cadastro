@@ -99,11 +99,11 @@ app.get('/acesso', (req, res) => {
 });
 
 app.get('/cadastro', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/calibracao', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'calibracao.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 

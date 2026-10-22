@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Access - Portaria Digital com Reconhecimento Facial</title>
-    <meta name="description" content="Sistema de controle de acesso biométrico facial inteligente com MediaPipe FaceMesh no navegador, calibração automática de limiar e proteção contra falso aceite.">
+    <title>Face Access - Terminal Unificado de Biometria Facial</title>
+    <meta name="description" content="Central biométrica unificada com acesso facial inteligente, cadastro com consolidação por média, calibração automática de limiar e proteção contra falso aceite.">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,31 +20,23 @@
             <span class="brand-name">Face Access</span>
         </a>
 
-        <nav class="nav-links">
-            <a href="/" class="nav-item active" id="nav-acesso">Acesso</a>
-            <a href="/cadastro" class="nav-item" id="nav-cadastro">Cadastrar Rosto</a>
-            <a href="/calibracao" class="nav-item" id="nav-calibracao">Calibração</a>
-        </nav>
-    </header>
-
-    <!-- Conteúdo Principal -->
-    <main class="main-wrapper">
-        <section class="page-title-section">
-            <div>
-                <h1 class="page-title">Terminal de Acesso Facial</h1>
-                <p class="page-subtitle">Verificação biométrica contínua por janela temporal com garantia de margem e imunidade a falso aceite.</p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="select-modo" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">MODO BIOMÉTRICO:</label>
-                <select id="select-modo" class="form-input" style="padding: 6px 12px; font-size: 0.85rem; width: auto;">
+        <div class="header-right">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="select-modo" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">MODO:</label>
+                <select id="select-modo" class="form-input" style="padding: 6px 12px; font-size: 0.82rem; width: auto;">
                     <option value="landmarks">Landmarks Estáveis (90 pontos, 3D)</option>
                     <option value="modelo">MobileFaceNet ONNX (512D)</option>
                 </select>
             </div>
-        </section>
+            <span class="badge-mode">Central Unificada</span>
+        </div>
+    </header>
 
+    <!-- Conteúdo Principal -->
+    <main class="main-wrapper">
         <div class="app-grid">
-            <!-- Coluna 1: Câmera e Visor Oval -->
+            
+            <!-- Coluna 1: Câmera Persistente (Compartilhada por todas as abas sem reiniciar) -->
             <section class="camera-card">
                 <div class="viewport-wrapper">
                     <video id="webcam" autoplay playsinline muted></video>
@@ -57,92 +49,296 @@
                         <span class="pill-dot"></span>
                         <span id="pill-text">Posicione o rosto</span>
                     </div>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">90 pontos estáveis (exclui boca/sobrancelhas)</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">90 landmarks estáveis ativos</span>
                 </div>
             </section>
 
-            <!-- Coluna 2: Painel de Diagnóstico em Tempo Real -->
-            <section class="diagnostic-panel">
-                <div class="card">
-                    <div class="card-header-line">
-                        <h2 class="card-title">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                            Diagnóstico Biométrico (/verificar)
-                        </h2>
-                        <span class="badge-mode" id="badge-version">v2.0 Rigorosa</span>
-                    </div>
+            <!-- Coluna 2: Painel de Controle Unificado com Abas -->
+            <section class="unified-panel">
+                
+                <!-- Barra de Navegação entre Abas -->
+                <nav class="tabs-navigation" aria-label="Navegação do Sistema">
+                    <button type="button" class="tab-btn active" data-tab="acesso" id="tab-btn-acesso">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Terminal de Acesso</span>
+                    </button>
 
-                    <!-- Indicador de Buffer de 10 Frames Consecutivos -->
-                    <div class="buffer-box">
-                        <div class="buffer-header">
-                            <span>Janela de Verificação (10 frames consecutivos)</span>
-                            <strong id="buffer-count" style="color: var(--cyan-400);">0/10</strong>
-                        </div>
-                        <div class="buffer-dots">
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                            <div class="buffer-dot"></div>
-                        </div>
-                    </div>
+                    <button type="button" class="tab-btn" data-tab="cadastro" id="tab-btn-cadastro">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                        <span>Cadastrar Rosto</span>
+                    </button>
 
-                    <!-- Métricas do Último Julgamento -->
-                    <div class="metrics-grid">
-                        <div class="metric-card accent">
-                            <span class="metric-label">Melhor Candidato</span>
-                            <span id="val-melhor" class="metric-value">--</span>
-                            <span id="meta-melhor" class="metric-meta">Aguardando leitura…</span>
+                    <button type="button" class="tab-btn" data-tab="calibracao" id="tab-btn-calibracao">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>
+                        <span>Calibração de Limiar</span>
+                    </button>
+
+                    <button type="button" class="tab-btn" data-tab="usuarios" id="tab-btn-usuarios">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span>Usuários</span>
+                    </button>
+                </nav>
+
+                <!-- ================= ABA 1: TERMINAL DE ACESSO ================= -->
+                <div class="tab-pane active" id="tab-acesso">
+                    <div class="card">
+                        <div class="card-header-line">
+                            <h2 class="card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                Diagnóstico em Tempo Real (/verificar)
+                            </h2>
+                            <span class="badge-mode">Janela de 10 Quadros</span>
                         </div>
 
-                        <div class="metric-card">
-                            <span class="metric-label">2º Melhor Candidato</span>
-                            <span id="val-segundo" class="metric-value">--</span>
-                            <span id="meta-segundo" class="metric-meta">Aguardando leitura…</span>
+                        <!-- Buffer de 10 Frames Consecutivos -->
+                        <div class="buffer-box">
+                            <div class="buffer-header">
+                                <span>Janela Temporal Consecutiva</span>
+                                <strong id="buffer-count" style="color: var(--cyan-400);">0/10</strong>
+                            </div>
+                            <div class="buffer-dots">
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                                <div class="buffer-dot"></div>
+                            </div>
                         </div>
 
-                        <div class="metric-card">
-                            <span class="metric-label">Razão de Margem</span>
-                            <span id="val-margem" class="metric-value">--</span>
-                            <span id="meta-margem" class="metric-meta">Exigido: ≥ 1.30x</span>
+                        <!-- Grid de Métricas -->
+                        <div class="metrics-grid">
+                            <div class="metric-card accent">
+                                <span class="metric-label">Melhor Candidato</span>
+                                <span id="val-melhor" class="metric-value">--</span>
+                                <span id="meta-melhor" class="metric-meta">Aguardando leitura…</span>
+                            </div>
+
+                            <div class="metric-card">
+                                <span class="metric-label">2º Melhor Candidato</span>
+                                <span id="val-segundo" class="metric-value">--</span>
+                                <span id="meta-segundo" class="metric-meta">Aguardando leitura…</span>
+                            </div>
+
+                            <div class="metric-card">
+                                <span class="metric-label">Razão de Margem (d2 / d1)</span>
+                                <span id="val-margem" class="metric-value">--</span>
+                                <span id="meta-margem" class="metric-meta">Exigido: ≥ 1.30x</span>
+                            </div>
+
+                            <div class="metric-card">
+                                <span class="metric-label">Limiar Vigente</span>
+                                <span id="val-limiar" class="metric-value">0.0500</span>
+                                <span id="meta-limiar" class="metric-meta">Escala de centésimos</span>
+                            </div>
                         </div>
 
-                        <div class="metric-card">
-                            <span class="metric-label">Limiar Vigente</span>
-                            <span id="val-limiar" class="metric-value">0.0500</span>
-                            <span id="meta-limiar" class="metric-meta">Escala de centésimos</span>
+                        <!-- Banner de Decisão Final -->
+                        <div id="banner-resultado" class="access-result-banner">
+                            <div class="result-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                            </div>
+                            <div>
+                                <div class="result-title">Aguardando leitura facial</div>
+                                <div class="result-desc">Mantenha seu rosto enquadrado para processar os 10 frames consecutivos.</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Banner de Decisão Final -->
-                    <div id="banner-resultado" class="access-result-banner">
-                        <div class="result-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                        </div>
+                        <!-- Terminal de Logs -->
                         <div>
-                            <div class="result-title">Aguardando verificação</div>
-                            <div class="result-desc">Mantenha seu rosto em frente à câmera para processar a janela de 10 quadros.</div>
-                        </div>
-                    </div>
-
-                    <!-- Terminal de Logs do Servidor em Tempo Real -->
-                    <div>
-                        <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;">
-                            Terminal de Eventos Biométricos
-                        </div>
-                        <div id="terminal-logs" class="terminal-box">
-                            <div class="log-entry info"><span class="time">[SISTEMA]</span> Terminal pronto. Aguardando detecção facial...</div>
+                            <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;">
+                                Terminal de Eventos Biométricos
+                            </div>
+                            <div id="terminal-logs" class="terminal-box">
+                                <div class="log-entry info"><span class="time">[SISTEMA]</span> Terminal iniciado. Pronto para verificação...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- ================= ABA 2: CADASTRAR ROSTO ================= -->
+                <div class="tab-pane" id="tab-cadastro">
+                    <div class="card">
+                        <div class="card-header-line">
+                            <h2 class="card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                                Novo Cadastro Facial
+                            </h2>
+                            <span class="badge-mode">Média de 5 Capturas</span>
+                        </div>
+
+                        <form id="form-register" style="display: flex; flex-direction: column; gap: 18px;">
+                            <div class="form-group">
+                                <label for="input-name" class="form-label">Nome Completo</label>
+                                <input type="text" id="input-name" class="form-input" placeholder="Ex: Melissa Nunes" required autocomplete="off">
+                            </div>
+
+                            <!-- Caixa de Instrução em Voz Ativa -->
+                            <div id="instruction-box" class="buffer-box" style="display: none; background: rgba(6, 182, 212, 0.08); border-color: rgba(6, 182, 212, 0.25);">
+                                <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--cyan-400); font-weight: 700; letter-spacing: 0.05em;">Instrução de Captura</span>
+                                <div id="instruction-text" style="font-size: 0.95rem; font-weight: 600; color: #FFFFFF;">Posicione-se em frente à câmera...</div>
+                            </div>
+
+                            <button type="submit" id="btn-start-register" class="btn btn-primary" style="background: linear-gradient(135deg, var(--emerald-500), #059669);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span>Iniciar Coleta (5 Capturas)</span>
+                            </button>
+                        </form>
+
+                        <!-- Crachá de Sucesso -->
+                        <div id="badge-success" class="access-result-banner granted" style="display: none; flex-direction: column; align-items: flex-start; gap: 14px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="result-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <div>
+                                    <div class="result-title" style="color: var(--emerald-400);">CADASTRO REALIZADO</div>
+                                    <div class="result-desc">Credenciais biométricas de <strong id="registered-name"></strong> salvas com sucesso.</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; width: 100%; margin-top: 6px;">
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('tab-btn-acesso').click();" style="flex: 1;">Testar no Terminal de Acesso</button>
+                                <button type="button" id="btn-reset-cadastro" class="btn btn-secondary">Novo Cadastro</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= ABA 3: CALIBRAÇÃO DE LIMIAR ================= -->
+                <div class="tab-pane" id="tab-calibracao">
+                    <div class="card">
+                        <div class="card-header-line">
+                            <h2 class="card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--violet-400)" stroke-width="2.2"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>
+                                Calibração Estatística de Limiar
+                            </h2>
+                            <span class="badge-mode">Percentis P95 e P5</span>
+                        </div>
+
+                        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                            Colete amostras legítimas e de outra pessoa para calcular o ponto de corte ótimo entre as distribuições e eliminar o risco de falso aceite.
+                        </p>
+
+                        <!-- Botões de Coleta de Calibração -->
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <button type="button" id="btn-collect-genuine" class="btn btn-primary" style="flex: 1; background: linear-gradient(135deg, var(--emerald-500), #059669);">
+                                    <span>1. Coletar "Sou Eu" (Genuínas)</span>
+                                </button>
+                                <span id="count-genuine" style="font-size: 0.82rem; font-weight: 700; color: var(--emerald-400); min-width: 90px; text-align: right;">0 amostras</span>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <button type="button" id="btn-collect-impostor" class="btn btn-primary" style="flex: 1; background: linear-gradient(135deg, var(--rose-500), #E11D48);">
+                                    <span>2. Coletar "Outra Pessoa" (Impostoras)</span>
+                                </button>
+                                <span id="count-impostor" style="font-size: 0.82rem; font-weight: 700; color: var(--rose-400); min-width: 90px; text-align: right;">0 amostras</span>
+                            </div>
+
+                            <div style="display: flex; justify-content: flex-end;">
+                                <button type="button" id="btn-simulate-impostor" class="btn btn-secondary" style="font-size: 0.78rem; padding: 6px 12px;">
+                                    Simular impostores sintéticos (caso esteja sozinho)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Métricas da Calibração -->
+                        <div class="metrics-grid">
+                            <div class="metric-card success">
+                                <span class="metric-label">P95 Genuíno</span>
+                                <span id="val-p95" class="metric-value">--</span>
+                                <span class="metric-meta">95% dos acessos legítimos ≤ P95</span>
+                            </div>
+
+                            <div class="metric-card danger">
+                                <span class="metric-label">P5 Impostor</span>
+                                <span id="val-p5" class="metric-value">--</span>
+                                <span class="metric-meta">Apenas 5% das invasões ≤ P5</span>
+                            </div>
+
+                            <div class="metric-card accent">
+                                <span class="metric-label">Limiar Ótimo</span>
+                                <span id="val-limiar-calib" class="metric-value">--</span>
+                                <span class="metric-meta">Ponto médio das distribuições</span>
+                            </div>
+
+                            <div class="metric-card">
+                                <span class="metric-label">Taxas Estimadas</span>
+                                <div style="display: flex; gap: 12px; align-items: baseline;">
+                                    <span style="font-size: 1.05rem; font-weight: 700; color: var(--rose-400);">FAR: <span id="val-far">--</span></span>
+                                    <span style="font-size: 1.05rem; font-weight: 700; color: var(--amber-500);">FRR: <span id="val-frr">--</span></span>
+                                </div>
+                                <span class="metric-meta">Falso Aceite vs Falso Negado</span>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Comparação Visual -->
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">Separação de Distribuições</span>
+                            <div class="dist-compare-bar" id="dist-compare-bar">
+                                <div class="dist-bar-gen" style="width: 40%;">Genuínos</div>
+                                <div class="dist-bar-imp" style="width: 45%;">Impostores</div>
+                                <div id="threshold-line" class="dist-threshold-line" style="left: 45%;"></div>
+                                <div id="threshold-label" class="dist-threshold-label" style="left: 45%;">Limiar</div>
+                            </div>
+                        </div>
+
+                        <button type="button" id="btn-save-calibration" class="btn btn-primary" disabled style="background: linear-gradient(135deg, var(--cyan-500), var(--violet-500));">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                            <span>Salvar e Ativar Limiar Calibrado</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ================= ABA 4: USUÁRIOS CADASTRADOS ================= -->
+                <div class="tab-pane" id="tab-usuarios">
+                    <div class="card">
+                        <div class="card-header-line">
+                            <h2 class="card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                                Base de Credenciais Biométricas
+                            </h2>
+                            <span id="total-users-count" class="badge-mode">Carregando…</span>
+                        </div>
+
+                        <div class="users-table-wrapper">
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Modelo</th>
+                                        <th>Amostras</th>
+                                        <th>Cadastrado em</th>
+                                        <th style="text-align: right;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Preenchido dinamicamente via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </section>
         </div>
     </main>
+
+    <!-- Modal de Confirmação para Nome Duplicado -->
+    <div id="modal-overwrite" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px;">
+        <div class="card" style="max-width: 440px; width: 100%; gap: 16px;">
+            <h3 style="font-size: 1.15rem; font-weight: 700;">Usuário Já Cadastrado</h3>
+            <p id="modal-text" style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;"></p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+                <button type="button" id="btn-cancel-overwrite" class="btn btn-secondary">Cancelar</button>
+                <button type="button" id="btn-confirm-overwrite" class="btn btn-primary" style="background: linear-gradient(135deg, var(--rose-500), #E11D48);">Sobrescrever</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts MediaPipe e ONNX Runtime Web -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -152,6 +348,6 @@
     <!-- Módulos da Aplicação -->
     <script src="js/landmarks.js"></script>
     <script src="js/onnx_engine.js"></script>
-    <script src="js/script_acesso.js"></script>
+    <script src="js/app_unified.js"></script>
 </body>
 </html>
